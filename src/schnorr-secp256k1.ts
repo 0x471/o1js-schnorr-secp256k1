@@ -3,15 +3,8 @@ import {
   Crypto,
   CanonicalForeignField,
   ForeignCurve,
-  Poseidon,
   Bool,
-  UInt32,
-  UInt64,
-  Bytes,
-  AlmostForeignField,
-  ForeignField,
-  assert,
-} from 'o1js';
+  AlmostForeignField} from 'o1js';
 import { FlexiblePoint } from 'o1js/dist/node/lib/provable/crypto/foreign-curve';
 
 // Define Secp256k1 curve
