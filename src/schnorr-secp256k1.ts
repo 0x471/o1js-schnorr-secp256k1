@@ -4,8 +4,7 @@ import {
   CanonicalForeignField,
   ForeignCurve,
   Bool,
-  AlmostForeignField} from 'o1js';
-import { FlexiblePoint } from 'o1js/dist/node/lib/provable/crypto/foreign-curve';
+} from 'o1js';
 
 // Define Secp256k1 curve
 class Secp256k1Curve extends createForeignCurve(Crypto.CurveParams.Secp256k1) {}
@@ -37,41 +36,35 @@ class SchnorrBIP340Secp256k1 {
   /**
    * Verifies a Schnorr signature (BIP430)
    *
-   * @param {FlexiblePoint} publicKeyPoint - The public key P must be a valid x-coordinate lifted to a curve point `lift_x` ensures we have a valid curve point by computing the corresponding y-coordinate and choosing the even y-value as per BIP340/Schnorr specification
-   * @param {AlmostForeignField} messageHash - Original message
+   * @param {ForeignCurve} publicKeyPoint - The public key P must be a valid x-coordinate lifted to a curve point `lift_x` ensures we have a valid curve point by computing the corresponding y-coordinate and choosing the even y-value as per BIP340/Schnorr specification
+   * @param {CanonicalForeignField} messageHash - Original message
    * @param {Object} signature - Signature containing R and s
-   * @returns {Bool} True if signature is valid, False otherwise
+   * @returns {Bool} True if signature is valid
    */
   static verify(
-    publicKeyPoint: FlexiblePoint,
-    messageHash: AlmostForeignField,
-    signature: {
-      r: AlmostForeignField;
-      s: AlmostForeignField;
-    }
+    publicKeyPoint: ForeignCurve,
+    messageHash: CanonicalForeignField,
+    signature: { r: CanonicalForeignField; s: CanonicalForeignField }
   ): Bool {
-    const curve = ForeignCurve.from(publicKeyPoint);
-    
+    const curve = Secp256k1Curve.from(publicKeyPoint);
+
     // Calculate: sG = s * G
     const sG = SchnorrBIP340Secp256k1.G.scale(signature.s);
 
-    // e = Hash(R.x || P.x || m)
-    const e = messageHash;
-
     // Calculate: eP = e * P
-    const eP = curve.scale(e);
+    const eP = curve.scale(messageHash);
 
     // Calculate: R = sG - eP
     const R = sG.add(eP.negate());
 
     // TODO, Check: is_infinite(R). Does o1js handle this check?
 
-    // Check: R has even y-coordinate
-    const isEvenY = R.y.toBits()[0].equals(Bool(true));
+    // Check: R.x equals r
+    R.x.assertEquals(signature.r);
 
-    // Check: R.x == r
-    const hasMatchingX = R.x.equals(signature.r.toBigInt());
+    // Check:  R.y is even
+    R.y.toBits()[0].assertEquals(Bool(true));
 
-    return isEvenY.and(hasMatchingX);
+    return Bool(true);
   }
 }
