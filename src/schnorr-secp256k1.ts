@@ -4,6 +4,7 @@ import {
   CanonicalForeignField,
   ForeignCurve,
   Bool,
+  Provable,
 } from 'o1js';
 
 // Define Secp256k1 curve
@@ -63,7 +64,7 @@ class SchnorrBIP340Secp256k1 {
     R.x.assertEquals(signature.r);
 
     // Check: R.y is even
-    R.y.toBits()[0].assertEquals(Bool(true));
+    R.y.toBits()[0].assertEquals(Bool(false));
 
     return Bool(true);
   }
