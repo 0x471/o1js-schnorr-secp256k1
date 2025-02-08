@@ -62,7 +62,7 @@ class SchnorrBIP340Secp256k1 {
     // Check: R.x equals r
     R.x.assertEquals(signature.r);
 
-    // Check:  R.y is even
+    // Check: R.y is even
     R.y.toBits()[0].assertEquals(Bool(true));
 
     return Bool(true);
